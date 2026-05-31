@@ -10,7 +10,8 @@ from datetime import datetime, timedelta
 from typing import List, Dict, Optional
 import pytz
 
-from config import COLOR_UP, COLOR_DOWN, ACCENT, CHART_COLORS, OPENWEATHER_API_KEY
+from config import COLOR_UP, COLOR_DOWN, ACCENT, CHART_COLORS
+import streamlit as st
 from utils.helpers import kpi_card, section_header
 
 BASE_URL    = "https://api.openweathermap.org/data/2.5"
@@ -39,9 +40,11 @@ def wx_emoji(code: int) -> str:
 # ── Récupération ─────────────────────────────────────────────
 
 @st.cache_data(ttl=600, show_spinner=False)
+@st.cache_data(ttl=600, show_spinner=False)
 def fetch_current_weather(city: str, units: str = "metric") -> Optional[dict]:
     """Météo actuelle d'une ville."""
-    if OPENWEATHER_API_KEY == "YOUR_OPENWEATHER_API_KEY":
+    api_key = st.secrets.get("OPENWEATHER_KEY", "")
+    if not api_key:
         return _mock_weather(city)
     try:
         r = requests.get(f"{BASE_URL}/weather", params={
